@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Member Premium - Tes CPNS</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; }
+    p { color: #666; font-size: 14px; text-align: center; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    button { width: 100%; padding: 12px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { background-color: #1d4ed8; }
+    .alert { padding: 10px; border-radius: 6px; font-size: 13px; margin-top: 15px; display: none; text-align: center; }
+    .alert-danger { background-color: #fee2e2; color: #991b1b; }
+    .alert-success { background-color: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <!-- FORM 1: LOGIN DENGAN PASSWORD GENERIK -->
+  <div id="login-box">
+    <h2>Masuk Member Premium</h2>
+    <p>Masukkan email terdaftar dan password default yang diberikan.</p>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Terdaftar</label>
+        <input type="email" id="email" placeholder="nama@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password Default</label>
+        <input type="password" id="password" placeholder="Masukkan password default" required>
+      </div>
+      <button type="submit" id="btnLogin">Masuk</button>
+    </form>
+  </div>
+
+  <!-- FORM 2: UBAH PASSWORD (Awalnya tersembunyi) -->
+  <div id="update-box" style="display: none;">
+    <h2>Buat Password Baru</h2>
+    <p>Silakan buat password baru Anda untuk mengamankan akun.</p>
+    <form id="updateForm">
+      <div class="form-group">
+        <label for="newPassword">Password Baru</label>
+        <input type="password" id="newPassword" placeholder="Minimal 6 Karakter" required minlength="6">
+      </div>
+      <button type="submit" id="btnUpdate">Simpan Password Baru</button>
+    </form>
+  </div>
+
+  <div id="alertBox" class="alert"></div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+  // KONEKSI SUPABASE (Ganti dengan kredensial Anda)
+  const SUPABASE_URL = 'https://fnxkxwecgkfhdphlzfft.supabase.co'; 
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const loginBox = document.getElementById('login-box');
+  const updateBox = document.getElementById('update-box');
+  const alertBox = document.getElementById('alertBox');
+
+  // Ambil parameter email otomatis dari URL jika dialihkan langsung dari Mayar
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailParam = urlParams.get('email');
+  if (emailParam) {
+    document.getElementById('email').value = emailParam;
+  }
+
+  function showAlert(message, type) {
+    alertBox.style.display = 'block';
+    alertBox.className = `alert alert-${type}`;
+    alertBox.innerText = message;
+  }
+
+  // 1. PROSES LOGIN DENGAN INPUT PASSWORD MANUAL
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('btnLogin');
+
+    btn.innerText = 'Memproses...';
+    btn.disabled = true;
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showAlert('Gagal Masuk: Periksa kembali email atau password default Anda.', 'danger');
+      btn.innerText = 'Masuk';
+      btn.disabled = false;
+    } else {
+      showAlert('Berhasil masuk! Silakan ganti password Anda.', 'success');
+      loginBox.style.display = 'none';
+      updateBox.style.display = 'block';
+    }
+  });
+
+  // 2. PROSES UPDATE PASSWORD BARU
+  document.getElementById('updateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPassword = document.getElementById('newPassword').value;
+    const btn = document.getElementById('btnUpdate');
+
+    btn.innerText = 'Menyimpan...';
+    btn.disabled = true;
+
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      showAlert('Gagal menyimpan password: ' + error.message, 'danger');
+      btn.innerText = 'Simpan Password Baru';
+      btn.disabled = false;
+    } else {
+      const user = data.user;
+      await supabase.from('profiles').update({ is_password_changed: true }).eq('id', user.id);
+
+      showAlert('Password berhasil diperbarui! Mengalihkan ke dashboard...', 'success');
+      setTimeout(() => {
+        window.location.href = '/dashboard'; 
+      }, 1500);
+    }
+  });
+</script>
+
+</body>
+</html>
