@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Area - Simulasi CAT CPNS</title>
-    <!-- Tailwind CSS untuk tampilan modern -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client resmi via unpkg CDN -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
@@ -17,7 +19,7 @@
         </div>
 
         <div class="p-6">
-            <!-- Pesan Notifikasi / Alert -->
+            <!-- Pesan Notifikasi -->
             <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
 
             <!-- FORM LOGIN MEMBER -->
@@ -89,13 +91,12 @@
         </div>
     </div>
 
-    <!-- Script Logika Frontend -->
+    <!-- Script Supabase Client SDK -->
     <script>
-        const SUPABASE_PROJECT_REF = "fnkxkwecgkfhdphlzfft";
-        const SUPABASE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co`;
+        const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
         
-        let currentUserAccessToken = null;
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const loginSection = document.getElementById('login-section');
         const loginForm = document.getElementById('login-form');
@@ -111,7 +112,7 @@
             alertBox.classList.remove('hidden');
         }
 
-        // Proses Login langsung ke endpoint Supabase Auth REST
+        // Proses Login menggunakan Supabase JS SDK
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             btnSubmit.disabled = true;
@@ -122,26 +123,19 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password,
                 });
 
-                const data = await res.json();
-
-                if (!res.ok) {
-                    showAlert("Gagal masuk: " + (data.error_description || data.msg || data.message || "Email atau kata sandi salah."));
+                if (error) {
+                    showAlert("Gagal masuk: " + error.message);
                 } else {
-                    currentUserAccessToken = data.access_token;
                     showAlert("Berhasil masuk!", true);
                     showDashboard(data.user);
                 }
             } catch (err) {
-                showAlert("Kesalahan jaringan: Gagal menghubungi server otentikasi.");
+                showAlert("Terjadi kesalahan sistem: " + err.message);
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = "Masuk Sekarang";
@@ -165,7 +159,7 @@
             memberDashboard.classList.remove('hidden');
         });
 
-        // Proses Ganti Password Baru
+        // Proses Update Password
         updatePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
@@ -174,33 +168,28 @@
             btnUpdate.textContent = "Menyimpan...";
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                    method: 'PUT',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${currentUserAccessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ password: newPassword })
+                const { error } = await supabaseClient.auth.updateUser({
+                    password: newPassword
                 });
 
-                const data = await res.json();
-
-                if (!res.ok) {
-                    showAlert("Gagal mengubah kata sandi: " + (data.msg || data.message));
+                if (error) {
+                    showAlert("Gagal memperbarui kata sandi: " + error.message);
                 } else {
                     showAlert("Kata sandi berhasil diperbarui!", true);
                     setTimeout(() => location.reload(), 1500);
                 }
             } catch (err) {
-                showAlert("Gagal memperbarui: " + err.message);
+                showAlert("Kesalahan: " + err.message);
             } finally {
                 btnUpdate.disabled = false;
                 btnUpdate.textContent = "Simpan Kata Sandi Baru";
             }
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => location.reload());
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            location.reload();
+        });
     </script>
 </body>
 </html>
