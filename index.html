@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Area - Simulasi CAT CPNS</title>
+    <title>Aktivasi & Login - Simulasi CAT CPNS</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client resmi via unpkg CDN -->
+    <!-- Supabase JS Client resmi via CDN -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -15,30 +15,26 @@
         <!-- Header -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
             <h1 class="text-2xl font-bold">Simulasi CAT CPNS</h1>
-            <p class="text-blue-100 text-sm mt-1">Portal Masuk Member & Aktivasi Akun</p>
+            <p class="text-blue-100 text-sm mt-1">Aktivasi Akun & Portal Member</p>
         </div>
 
         <div class="p-6">
             <!-- Pesan Notifikasi -->
             <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
 
-            <!-- FORM LOGIN MEMBER -->
+            <!-- TAHAP 1: FORM MASUK HANYA EMAIL -->
             <div id="login-section">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Masuk Member</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Masuk / Aktivasi Akun</h2>
+                <p class="text-xs text-gray-500 mb-4">Masukkan email terdaftar di Mayar untuk masuk atau melakukan aktivasi pertama kali.</p>
+                
                 <form id="login-form" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Email Terdaftar</label>
+                        <label class="block text-sm font-medium text-gray-700">Email Terdaftar di Mayar</label>
                         <input type="email" id="login-email" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="email@contoh.com">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Kata Sandi (Password)</label>
-                        <input type="password" id="login-password" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••">
-                        <p class="text-xs text-gray-500 mt-1">Gunakan kata sandi generik jika baru pertama kali masuk.</p>
-                    </div>
-                    <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
+                    <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Lanjutkan / Aktivasi</button>
                 </form>
 
-                <!-- BANNER JIKA BELUM MENDAFTAR -->
                 <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                     <p class="text-sm text-gray-600 mb-3">Belum punya akun atau belum mendaftar?</p>
                     <a href="https://tescpnsonline.myr.id/pl/simulasi-tes-cat-cpns/" target="_blank" class="inline-block w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
@@ -47,12 +43,25 @@
                 </div>
             </div>
 
-            <!-- DASHBOARD SETELAH BERHASIL LOGIN -->
+            <!-- TAHAP 2: FORM BUAT PASSWORD PRIBADI BARU -->
+            <div id="setup-password-section" class="hidden">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Buat Kata Sandi Pribadi</h2>
+                <p class="text-xs text-gray-500 mb-4">Silakan buat kata sandi baru yang aman untuk akun Anda.</p>
+                
+                <form id="setup-password-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru (Min. 6 Karakter)</label>
+                        <input type="password" id="new-password" minlength="6" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="btn-save-pass" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
+                        Simpan & Masuk ke Portal
+                    </button>
+                </form>
+            </div>
+
+            <!-- TAHAP 3: DASHBOARD MEMBER UTAMA -->
             <div id="member-dashboard" class="hidden space-y-4 text-center">
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <span class="inline-block p-2 bg-blue-100 text-blue-600 rounded-full mb-2">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </span>
                     <h3 class="text-lg font-bold text-gray-800">Selamat Datang!</h3>
                     <p id="user-email-display" class="text-sm font-medium text-blue-600 mt-1"></p>
                 </div>
@@ -60,38 +69,14 @@
                 <a href="https://member.gratis.tescpns.online/" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow text-center">
                     🚀 Akses Halaman Member Utama
                 </a>
-
-                <button id="btn-show-update-pass" class="w-full bg-gray-100 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm">
-                    🔒 Ganti Kata Sandi
-                </button>
                 
                 <button id="btn-logout" class="w-full text-red-500 text-sm py-1 hover:underline">
                     Keluar (Logout)
                 </button>
             </div>
-
-            <!-- FORM GANTI KATA SANDI -->
-            <div id="update-password-section" class="hidden">
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Ganti Kata Sandi</h2>
-                <p class="text-xs text-gray-500 mb-4">Ubah kata sandi generik Anda menjadi kata sandi pribadi yang aman.</p>
-                
-                <form id="update-password-form" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
-                        <input type="password" id="new-password" minlength="6" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Minimal 6 karakter">
-                    </div>
-                    <button type="submit" id="btn-update-pass" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
-                        Simpan Kata Sandi Baru
-                    </button>
-                    <button type="button" id="btn-cancel-update" class="w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm">
-                        Batal
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 
-    <!-- Script Supabase Client SDK -->
     <script>
         const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
@@ -100,11 +85,14 @@
 
         const loginSection = document.getElementById('login-section');
         const loginForm = document.getElementById('login-form');
+        const setupPasswordSection = document.getElementById('setup-password-section');
+        const setupPasswordForm = document.getElementById('setup-password-form');
         const memberDashboard = document.getElementById('member-dashboard');
-        const updatePasswordSection = document.getElementById('update-password-section');
-        const updatePasswordForm = document.getElementById('update-password-form');
         const alertBox = document.getElementById('alert-box');
         const btnSubmit = document.getElementById('btn-submit');
+
+        // Kata sandi generik rahasia di balik layar
+        const GENERIC_PASSWORD = "C@y$*&%"; 
 
         function showAlert(message, isSuccess = false) {
             alertBox.textContent = message;
@@ -112,77 +100,81 @@
             alertBox.classList.remove('hidden');
         }
 
-        // Proses Login menggunakan Supabase JS SDK
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             btnSubmit.disabled = true;
-            btnSubmit.textContent = "Memproses...";
+            btnSubmit.textContent = "Memeriksa...";
             alertBox.classList.add('hidden');
 
             const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
 
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password,
+                // 1. Verifikasi apakah email terdaftar di tabel public.members (pembeli Mayar)
+                const { data: isValidMember, error: rpcError } = await supabaseClient.rpc('verify_mayar_customer', { p_email: email });
+
+                if (rpcError || !isValidMember) {
+                    showAlert("Email tidak ditemukan dalam daftar pembeli sah Mayar. Silakan lakukan pembelian terlebih dahulu.");
+                    return;
+                }
+
+                // 2. Coba login otomatis menggunakan kata sandi generik
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+                    email: email, 
+                    password: GENERIC_PASSWORD 
                 });
 
                 if (error) {
-                    showAlert("Gagal masuk: " + error.message);
+                    // Jika belum pernah punya akun Supabase Auth, buatkan akun baru otomatis
+                    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ 
+                        email: email, 
+                        password: GENERIC_PASSWORD 
+                    });
+                    
+                    if (signUpError) {
+                        showAlert("Akun sudah terdaftar. Silakan hubungi admin jika Anda lupa kata sandi pribadi Anda.");
+                    } else {
+                        showAlert("Aktivasi berhasil! Silakan buat kata sandi pribadi baru Anda.", true);
+                        loginSection.classList.add('hidden');
+                        setupPasswordSection.classList.remove('hidden');
+                    }
                 } else {
-                    showAlert("Berhasil masuk!", true);
-                    showDashboard(data.user);
+                    // Jika login generik berhasil, langsung minta pengguna buat password pribadi
+                    showAlert("Aktivasi berhasil! Silakan buat kata sandi pribadi baru Anda.", true);
+                    loginSection.classList.add('hidden');
+                    setupPasswordSection.classList.remove('hidden');
                 }
             } catch (err) {
-                showAlert("Terjadi kesalahan sistem: " + err.message);
+                showAlert("Kesalahan sistem: " + err.message);
             } finally {
                 btnSubmit.disabled = false;
-                btnSubmit.textContent = "Masuk Sekarang";
+                btnSubmit.textContent = "Lanjutkan / Aktivasi";
             }
         });
 
-        function showDashboard(user) {
-            loginSection.classList.add('hidden');
-            updatePasswordSection.classList.add('hidden');
-            document.getElementById('user-email-display').textContent = user.email;
-            memberDashboard.classList.remove('hidden');
-        }
-
-        document.getElementById('btn-show-update-pass').addEventListener('click', () => {
-            memberDashboard.classList.add('hidden');
-            updatePasswordSection.classList.remove('hidden');
-        });
-
-        document.getElementById('btn-cancel-update').addEventListener('click', () => {
-            updatePasswordSection.classList.add('hidden');
-            memberDashboard.classList.remove('hidden');
-        });
-
-        // Proses Update Password
-        updatePasswordForm.addEventListener('submit', async (e) => {
+        // Simpan password pribadi baru
+        setupPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
-            const btnUpdate = document.getElementById('btn-update-pass');
-            btnUpdate.disabled = true;
-            btnUpdate.textContent = "Menyimpan...";
+            const btnSave = document.getElementById('btn-save-pass');
+            btnSave.disabled = true;
+            btnSave.textContent = "Menyimpan...";
 
             try {
-                const { error } = await supabaseClient.auth.updateUser({
-                    password: newPassword
-                });
+                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
 
                 if (error) {
-                    showAlert("Gagal memperbarui kata sandi: " + error.message);
+                    showAlert("Gagal menyimpan kata sandi: " + error.message);
                 } else {
-                    showAlert("Kata sandi berhasil diperbarui!", true);
-                    setTimeout(() => location.reload(), 1500);
+                    showAlert("Kata sandi berhasil dibuat! Mengalihkan ke portal...", true);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 }
             } catch (err) {
                 showAlert("Kesalahan: " + err.message);
             } finally {
-                btnUpdate.disabled = false;
-                btnUpdate.textContent = "Simpan Kata Sandi Baru";
+                btnSave.disabled = false;
+                btnSave.textContent = "Simpan & Masuk ke Portal";
             }
         });
 
