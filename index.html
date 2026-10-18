@@ -6,8 +6,8 @@
     <title>Member Area - Simulasi CAT CPNS</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS Client (Versi CDN Terstabil) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
@@ -35,7 +35,7 @@
                         <input type="password" id="login-password" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••">
                         <p class="text-xs text-gray-500 mt-1">Gunakan kata sandi generik jika baru pertama kali masuk.</p>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
+                    <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
                 </form>
 
                 <!-- BANNER JIKA BELUM MENDAFTAR -->
@@ -94,7 +94,13 @@
     <script>
         const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let supabaseClient;
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+            console.error("Supabase library failed to load");
+        }
 
         const loginSection = document.getElementById('login-section');
         const loginForm = document.getElementById('login-form');
@@ -102,6 +108,7 @@
         const updatePasswordSection = document.getElementById('update-password-section');
         const updatePasswordForm = document.getElementById('update-password-form');
         const alertBox = document.getElementById('alert-box');
+        const btnSubmit = document.getElementById('btn-submit');
 
         function showAlert(message, isSuccess = false) {
             alertBox.textContent = message;
@@ -109,22 +116,31 @@
             alertBox.classList.remove('hidden');
         }
 
-        // 1. Proses Login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = "Memproses...";
+
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
 
-            if (error) {
-                showAlert("Gagal masuk: " + error.message);
-            } else {
-                showAlert("Berhasil masuk!", true);
-                showDashboard(data.user);
+                if (error) {
+                    showAlert("Gagal masuk: " + error.message);
+                } else {
+                    showAlert("Berhasil masuk!", true);
+                    showDashboard(data.user);
+                }
+            } catch (err) {
+                showAlert("Terjadi kesalahan koneksi: " + err.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = "Masuk Sekarang";
             }
         });
 
@@ -135,7 +151,6 @@
             memberDashboard.classList.remove('hidden');
         }
 
-        // 2. Navigasi Ganti Password
         document.getElementById('btn-show-update-pass').addEventListener('click', () => {
             memberDashboard.classList.add('hidden');
             updatePasswordSection.classList.remove('hidden');
@@ -146,7 +161,6 @@
             memberDashboard.classList.remove('hidden');
         });
 
-        // 3. Simpan Password Baru
         updatePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
@@ -165,7 +179,6 @@
             }
         });
 
-        // 4. Logout
         document.getElementById('btn-logout').addEventListener('click', async () => {
             await supabaseClient.auth.signOut();
             location.reload();
