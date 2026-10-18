@@ -1,170 +1,178 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Member Premium - Tes CPNS</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-    .card { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-    h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; }
-    p { color: #666; font-size: 14px; text-align: center; margin-bottom: 20px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
-    input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    button { width: 100%; padding: 12px; background-color: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:hover { background-color: #1d4ed8; }
-    .btn-register { display: block; width: 100%; padding: 12px; background-color: #16a34a; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-    .btn-register:hover { background-color: #15803d; }
-    .alert { padding: 10px; border-radius: 6px; font-size: 13px; margin-top: 15px; display: none; text-align: center; }
-    .alert-danger { background-color: #fee2e2; color: #991b1b; }
-    .alert-success { background-color: #dcfce7; color: #166534; }
-    .switch-text { text-align: center; font-size: 13px; margin-top: 15px; color: #555; }
-    .switch-text a { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; }
-    .switch-text a:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area - Simulasi CAT CPNS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-<div class="card">
-  <!-- FORM 1: MASUK MEMBER (Dengan Password Generik dari Mayar) -->
-  <div id="login-box">
-    <h2>Masuk Member Premium</h2>
-    <p>Masukkan email terdaftar dan password generik yang Anda terima via email setelah pembayaran.</p>
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="login-email">Email Terdaftar</label>
-        <input type="email" id="login-email" placeholder="nama@email.com" required>
-      </div>
-      <div class="form-group">
-        <label for="login-password">Password Generik</label>
-        <input type="password" id="login-password" placeholder="Masukkan password generik" required>
-      </div>
-      <button type="submit" id="btnLogin">Masuk</button>
-    </form>
-    <div class="switch-text">
-      Belum punya akun? <a id="toRegister">Daftar di sini</a>
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
+            <h1 class="text-2xl font-bold">Simulasi CAT CPNS</h1>
+            <p class="text-blue-100 text-sm mt-1">Portal Masuk Member & Aktivasi Akun</p>
+        </div>
+
+        <div class="p-6">
+            <!-- Pesan Notifikasi -->
+            <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+            <!-- FORM LOGIN MEMBER -->
+            <div id="login-section">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Masuk Member</h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email Terdaftar</label>
+                        <input type="email" id="login-email" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="email@contoh.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Kata Sandi (Password)</label>
+                        <input type="password" id="login-password" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••">
+                        <p class="text-xs text-gray-500 mt-1">Gunakan kata sandi generik jika baru pertama kali masuk.</p>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
+                </form>
+
+                <!-- BANNER/TOMBOL JIKA BELUM MENDAFTAR -->
+                <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                    <p class="text-sm text-gray-600 mb-3">Belum punya akun atau belum mendaftar?</p>
+                    <a href="https://tescpnsonline.myr.id/pl/simulasi-tes-cat-cpns/" target="_blank" class="inline-block w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
+                        Daftar Pembelian di Mayar
+                    </a>
+                </div>
+            </div>
+
+            <!-- DASHBOARD SETELAH BERHASIL LOGIN -->
+            <div id="member-dashboard" class="hidden space-y-4 text-center">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <span class="inline-block p-2 bg-blue-100 text-blue-600 rounded-full mb-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </span>
+                    <h3 class="text-lg font-bold text-gray-800">Selamat Datang!</h3>
+                    <p id="user-email-display" class="text-sm font-medium text-blue-600 mt-1"></p>
+                </div>
+
+                <a href="https://member.gratis.tescpns.online/" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow text-center">
+                    🚀 Akses Halaman Member Utama
+                </a>
+
+                <button id="btn-show-update-pass" class="w-full bg-gray-100 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm">
+                    🔒 Ganti Kata Sandi
+                </button>
+                
+                <button id="btn-logout" class="w-full text-red-500 text-sm py-1 hover:underline">
+                    Keluar (Logout)
+                </button>
+            </div>
+
+            <!-- FORM GANTI KATA SANDI -->
+            <div id="update-password-section" class="hidden">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Ganti Kata Sandi</h2>
+                <p class="text-xs text-gray-500 mb-4">Ubah kata sandi generik Anda menjadi kata sandi pribadi yang aman.</p>
+                
+                <form id="update-password-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
+                        <input type="password" id="new-password" minlength="6" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Minimal 6 karakter">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
+                        Simpan Kata Sandi Baru
+                    </button>
+                    <button type="button" id="btn-cancel-update" class="w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm">
+                        Batal
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- HALAMAN DAFTAR (Langsung ke Link Mayar) -->
-  <div id="register-box" style="display: none;">
-    <h2>Daftar Akun Baru</h2>
-    <p>Silakan klik tombol di bawah untuk melakukan pendaftaran dan pembayaran melalui Mayar.</p>
-    
-    <a href="https://tescpnsonline.myr.id/pl/simulasi-tes-cat-cpns/" class="btn-register" target="_blank">Lanjut ke Pembayaran Mayar</a>
+    <script>
+        // Data Konfigurasi Supabase Anda (Telah Diperbarui)
+        const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <div class="switch-text" style="margin-top: 20px;">
-      Sudah punya akun? <a id="toLogin">Masuk di sini</a>
-    </div>
-  </div>
+        // Elemen DOM
+        const loginSection = document.getElementById('login-section');
+        const loginForm = document.getElementById('login-form');
+        const memberDashboard = document.getElementById('member-dashboard');
+        const updatePasswordSection = document.getElementById('update-password-section');
+        const updatePasswordForm = document.getElementById('update-password-form');
+        const alertBox = document.getElementById('alert-box');
 
-  <!-- FORM 3: UBAH PASSWORD (Awalnya tersembunyi) -->
-  <div id="update-box" style="display: none;">
-    <h2>Buat Password Baru</h2>
-    <p>Silakan buat password baru Anda untuk mengamankan akun.</p>
-    <form id="updateForm">
-      <div class="form-group">
-        <label for="newPassword">Password Baru</label>
-        <input type="password" id="newPassword" placeholder="Minimal 6 Karakter" required minlength="6">
-      </div>
-      <button type="submit" id="btnUpdate">Simpan Password Baru</button>
-    </form>
-  </div>
+        function showAlert(message, isSuccess = false) {
+            alertBox.textContent = message;
+            alertBox.className = `mb-4 p-3 rounded-lg text-sm ${isSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            alertBox.classList.remove('hidden');
+        }
 
-  <div id="alertBox" class="alert"></div>
-</div>
+        // 1. Proses Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
 
-  // Ganti dengan kredensial Supabase Anda
-  const SUPABASE_URL = 'https://fnxkxwecgkfhdphlzfft.supabase.co'; 
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+            if (error) {
+                showAlert("Gagal masuk: " + error.message);
+            } else {
+                showAlert("Berhasil masuk!", true);
+                showDashboard(data.user);
+            }
+        });
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Tampilkan Dashboard
+        function showDashboard(user) {
+            loginSection.classList.add('hidden');
+            updatePasswordSection.classList.add('hidden');
+            document.getElementById('user-email-display').textContent = user.email;
+            memberDashboard.classList.remove('hidden');
+        }
 
-  const loginBox = document.getElementById('login-box');
-  const registerBox = document.getElementById('register-box');
-  const updateBox = document.getElementById('update-box');
-  const alertBox = document.getElementById('alertBox');
+        // 2. Tombol Navigasi Ganti Password
+        document.getElementById('btn-show-update-pass').addEventListener('click', () => {
+            memberDashboard.classList.add('hidden');
+            updatePasswordSection.classList.remove('hidden');
+        });
 
-  // Navigasi antar form
-  document.getElementById('toRegister').addEventListener('click', () => {
-    loginBox.style.display = 'none';
-    registerBox.style.display = 'block';
-    alertBox.style.display = 'none';
-  });
+        document.getElementById('btn-cancel-update').addEventListener('click', () => {
+            updatePasswordSection.classList.add('hidden');
+            memberDashboard.classList.remove('hidden');
+        });
 
-  document.getElementById('toLogin').addEventListener('click', () => {
-    registerBox.style.display = 'none';
-    loginBox.style.display = 'block';
-    alertBox.style.display = 'none';
-  });
+        // 3. Proses Simpan Password Baru
+        updatePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = document.getElementById('new-password').value;
 
-  // Ambil parameter email otomatis dari URL jika ada
-  const urlParams = new URLSearchParams(window.location.search);
-  const emailParam = urlParams.get('email');
-  if (emailParam) {
-    document.getElementById('login-email').value = emailParam;
-  }
+            const { error } = await supabaseClient.auth.updateUser({
+                password: newPassword
+            });
 
-  function showAlert(message, type) {
-    alertBox.style.display = 'block';
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerText = message;
-  }
+            if (error) {
+                showAlert("Gagal memperbarui kata sandi: " + error.message);
+            } else {
+                showAlert("Kata sandi berhasil diperbarui!", true);
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        });
 
-  // PROSES LOGIN DENGAN PASSWORD GENERIK
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const btn = document.getElementById('btnLogin');
-
-    btn.innerText = 'Memproses...';
-    btn.disabled = true;
-
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      showAlert('Gagal Masuk: Periksa kembali email atau password generik Anda.', 'danger');
-      btn.innerText = 'Masuk';
-      btn.disabled = false;
-    } else {
-      showAlert('Berhasil masuk! Silakan buat password baru Anda.', 'success');
-      loginBox.style.display = 'none';
-      updateBox.style.display = 'block';
-    }
-  });
-
-  // PROSES UPDATE PASSWORD BARU DI SUPABASE
-  document.getElementById('updateForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newPassword = document.getElementById('newPassword').value;
-    const btn = document.getElementById('btnUpdate');
-
-    btn.innerText = 'Menyimpan...';
-    btn.disabled = true;
-
-    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-    if (error) {
-      showAlert('Gagal menyimpan password: ' + error.message, 'danger');
-      btn.innerText = 'Simpan Password Baru';
-      btn.disabled = false;
-    } else {
-      const user = data.user;
-      await supabase.from('profiles').update({ is_password_changed: true }).eq('id', user.id);
-
-      showAlert('Password berhasil diperbarui! Mengalihkan ke dashboard...', 'success');
-      setTimeout(() => {
-        window.location.href = '/dashboard'; 
-      }, 1500);
-    }
-  });
-</script>
-
+        // 4. Proses Logout
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            location.reload();
+        });
+    </script>
 </body>
 </html>
