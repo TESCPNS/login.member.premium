@@ -6,8 +6,6 @@
     <title>Member Area - Simulasi CAT CPNS</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client (Versi CDN Terstabil) -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
@@ -80,7 +78,7 @@
                         <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
                         <input type="password" id="new-password" minlength="6" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Minimal 6 karakter">
                     </div>
-                    <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
+                    <button type="submit" id="btn-update-pass" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
                         Simpan Kata Sandi Baru
                     </button>
                     <button type="button" id="btn-cancel-update" class="w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-medium hover:bg-gray-200 transition text-sm">
@@ -95,12 +93,7 @@
         const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
         
-        let supabaseClient;
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else {
-            console.error("Supabase library failed to load");
-        }
+        let currentUserAccessToken = null;
 
         const loginSection = document.getElementById('login-section');
         const loginForm = document.getElementById('login-form');
@@ -116,28 +109,37 @@
             alertBox.classList.remove('hidden');
         }
 
+        // Process Login via Direct REST API Fetch
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             btnSubmit.disabled = true;
             btnSubmit.textContent = "Memproses...";
+            alertBox.classList.add('hidden');
 
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password,
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({ email, password })
                 });
 
-                if (error) {
-                    showAlert("Gagal masuk: " + error.message);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showAlert("Gagal masuk: " + (data.error_description || data.msg || data.message || "Email atau kata sandi salah."));
                 } else {
+                    currentUserAccessToken = data.access_token;
                     showAlert("Berhasil masuk!", true);
                     showDashboard(data.user);
                 }
             } catch (err) {
-                showAlert("Terjadi kesalahan koneksi: " + err.message);
+                showAlert("Gagal terhubung ke server: " + err.message);
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = "Masuk Sekarang";
@@ -161,26 +163,44 @@
             memberDashboard.classList.remove('hidden');
         });
 
+        // Update Password via Direct REST API Fetch
         updatePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
+            const btnUpdate = document.getElementById('btn-update-pass');
+            btnUpdate.disabled = true;
+            btnUpdate.textContent = "Menyimpan...";
 
-            const { error } = await supabaseClient.auth.updateUser({
-                password: newPassword
-            });
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${currentUserAccessToken}`
+                    },
+                    body: JSON.stringify({ password: newPassword })
+                });
 
-            if (error) {
-                showAlert("Gagal memperbarui kata sandi: " + error.message);
-            } else {
-                showAlert("Kata sandi berhasil diperbarui!", true);
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showAlert("Gagal memperbarui kata sandi: " + (data.msg || data.message));
+                } else {
+                    showAlert("Kata sandi berhasil diperbarui!", true);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
+            } catch (err) {
+                showAlert("Kesalahan koneksi: " + err.message);
+            } finally {
+                btnUpdate.disabled = false;
+                btnUpdate.textContent = "Simpan Kata Sandi Baru";
             }
         });
 
-        document.getElementById('btn-logout').addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
+        document.getElementById('btn-logout').addEventListener('click', () => {
             location.reload();
         });
     </script>
