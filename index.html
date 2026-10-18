@@ -4,23 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Area - Simulasi CAT CPNS</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
     <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        <!-- Header -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
             <h1 class="text-2xl font-bold">Simulasi CAT CPNS</h1>
             <p class="text-blue-100 text-sm mt-1">Portal Masuk Member & Aktivasi Akun</p>
         </div>
 
         <div class="p-6">
-            <!-- Pesan Notifikasi -->
             <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
 
-            <!-- FORM LOGIN MEMBER -->
             <div id="login-section">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Masuk Member</h2>
                 <form id="login-form" class="space-y-4">
@@ -36,7 +32,6 @@
                     <button type="submit" id="btn-submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
                 </form>
 
-                <!-- BANNER JIKA BELUM MENDAFTAR -->
                 <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                     <p class="text-sm text-gray-600 mb-3">Belum punya akun atau belum mendaftar?</p>
                     <a href="https://tescpnsonline.myr.id/pl/simulasi-tes-cat-cpns/" target="_blank" class="inline-block w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
@@ -45,12 +40,8 @@
                 </div>
             </div>
 
-            <!-- DASHBOARD SETELAH BERHASIL LOGIN -->
             <div id="member-dashboard" class="hidden space-y-4 text-center">
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <span class="inline-block p-2 bg-blue-100 text-blue-600 rounded-full mb-2">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </span>
                     <h3 class="text-lg font-bold text-gray-800">Selamat Datang!</h3>
                     <p id="user-email-display" class="text-sm font-medium text-blue-600 mt-1"></p>
                 </div>
@@ -68,11 +59,8 @@
                 </button>
             </div>
 
-            <!-- FORM GANTI KATA SANDI -->
             <div id="update-password-section" class="hidden">
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Ganti Kata Sandi</h2>
-                <p class="text-xs text-gray-500 mb-4">Ubah kata sandi generik Anda menjadi kata sandi pribadi yang aman.</p>
-                
                 <form id="update-password-form" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
@@ -90,9 +78,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
+        const SUPABASE_PROJECT_REF = "fnkxkwecgkfhdphlzfft";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
-        
         let currentUserAccessToken = null;
 
         const loginSection = document.getElementById('login-section');
@@ -109,7 +96,6 @@
             alertBox.classList.remove('hidden');
         }
 
-        // Process Login via Direct REST API Fetch
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             btnSubmit.disabled = true;
@@ -120,26 +106,26 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                const res = await fetch(`https://${SUPABASE_PROJECT_REF}.supabase.co/auth/v1/token?grant_type=password`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (!response.ok) {
-                    showAlert("Gagal masuk: " + (data.error_description || data.msg || data.message || "Email atau kata sandi salah."));
+                if (!res.ok) {
+                    showAlert("Gagal masuk: " + (data.error_description || data.msg || "Kredensial tidak valid"));
                 } else {
                     currentUserAccessToken = data.access_token;
                     showAlert("Berhasil masuk!", true);
                     showDashboard(data.user);
                 }
             } catch (err) {
-                showAlert("Gagal terhubung ke server: " + err.message);
+                showAlert("Kesalahan jaringan: Silakan periksa koneksi atau coba jendela Incognito.");
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = "Masuk Sekarang";
@@ -163,46 +149,35 @@
             memberDashboard.classList.remove('hidden');
         });
 
-        // Update Password via Direct REST API Fetch
         updatePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
-            const btnUpdate = document.getElementById('btn-update-pass');
-            btnUpdate.disabled = true;
-            btnUpdate.textContent = "Menyimpan...";
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                const res = await fetch(`https://${SUPABASE_PROJECT_REF}.supabase.co/auth/v1/user`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${currentUserAccessToken}`
+                        'Authorization': `Bearer ${currentUserAccessToken}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ password: newPassword })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
 
-                if (!response.ok) {
-                    showAlert("Gagal memperbarui kata sandi: " + (data.msg || data.message));
+                if (!res.ok) {
+                    showAlert("Gagal mengubah kata sandi: " + (data.msg || data.message));
                 } else {
                     showAlert("Kata sandi berhasil diperbarui!", true);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
+                    setTimeout(() => location.reload(), 1500);
                 }
             } catch (err) {
-                showAlert("Kesalahan koneksi: " + err.message);
-            } finally {
-                btnUpdate.disabled = false;
-                btnUpdate.textContent = "Simpan Kata Sandi Baru";
+                showAlert("Gagal memperbarui: " + err.message);
             }
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            location.reload();
-        });
+        document.getElementById('btn-logout').addEventListener('click', () => location.reload());
     </script>
 </body>
 </html>
