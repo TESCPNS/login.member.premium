@@ -38,7 +38,7 @@
                     <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition shadow">Masuk Sekarang</button>
                 </form>
 
-                <!-- BANNER/TOMBOL JIKA BELUM MENDAFTAR -->
+                <!-- BANNER JIKA BELUM MENDAFTAR -->
                 <div class="mt-6 pt-6 border-t border-gray-200 text-center">
                     <p class="text-sm text-gray-600 mb-3">Belum punya akun atau belum mendaftar?</p>
                     <a href="https://tescpnsonline.myr.id/pl/simulasi-tes-cat-cpns/" target="_blank" class="inline-block w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition shadow">
@@ -92,12 +92,10 @@
     </div>
 
     <script>
-        // Data Konfigurasi Supabase Anda (Telah Diperbarui)
         const SUPABASE_URL = "https://fnkxkwecgkfhdphlzfft.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZueGt4d2VjZ2tmaGRwaGx6ZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MzQ2NTUsImV4cCI6MjEwMDUxMDY1NX0.r7p2YF4RVEZQQGDAQqvL4Am9n8vpQbuIQQjYLeH1upw";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Elemen DOM
         const loginSection = document.getElementById('login-section');
         const loginForm = document.getElementById('login-form');
         const memberDashboard = document.getElementById('member-dashboard');
@@ -130,7 +128,6 @@
             }
         });
 
-        // Tampilkan Dashboard
         function showDashboard(user) {
             loginSection.classList.add('hidden');
             updatePasswordSection.classList.add('hidden');
@@ -138,7 +135,7 @@
             memberDashboard.classList.remove('hidden');
         }
 
-        // 2. Tombol Navigasi Ganti Password
+        // 2. Navigasi Ganti Password
         document.getElementById('btn-show-update-pass').addEventListener('click', () => {
             memberDashboard.classList.add('hidden');
             updatePasswordSection.classList.remove('hidden');
@@ -149,7 +146,7 @@
             memberDashboard.classList.remove('hidden');
         });
 
-        // 3. Proses Simpan Password Baru
+        // 3. Simpan Password Baru
         updatePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
@@ -168,7 +165,7 @@
             }
         });
 
-        // 4. Proses Logout
+        // 4. Logout
         document.getElementById('btn-logout').addEventListener('click', async () => {
             await supabaseClient.auth.signOut();
             location.reload();
