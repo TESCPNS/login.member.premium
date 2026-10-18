@@ -6,7 +6,7 @@
     <title>Aktivasi & Login - Simulasi CAT CPNS</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client resmi via CDN -->
+    <!-- Supabase JS SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -19,10 +19,10 @@
         </div>
 
         <div class="p-6">
-            <!-- Pesan Notifikasi -->
+            <!-- Alert Box -->
             <div id="alert-box" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
 
-            <!-- TAHAP 1: FORM MASUK HANYA EMAIL -->
+            <!-- TAHAP 1: INPUT EMAIL -->
             <div id="login-section">
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Masuk / Aktivasi Akun</h2>
                 <p class="text-xs text-gray-500 mb-4">Masukkan email terdaftar di Mayar untuk masuk atau melakukan aktivasi pertama kali.</p>
@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <!-- TAHAP 2: FORM BUAT PASSWORD PRIBADI BARU -->
+            <!-- TAHAP 2: BUAT PASSWORD BARU -->
             <div id="setup-password-section" class="hidden">
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Buat Kata Sandi Pribadi</h2>
                 <p class="text-xs text-gray-500 mb-4">Silakan buat kata sandi baru yang aman untuk akun Anda.</p>
@@ -59,7 +59,7 @@
                 </form>
             </div>
 
-            <!-- TAHAP 3: DASHBOARD MEMBER UTAMA -->
+            <!-- TAHAP 3: DASHBOARD MEMBER -->
             <div id="member-dashboard" class="hidden space-y-4 text-center">
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                     <h3 class="text-lg font-bold text-gray-800">Selamat Datang!</h3>
@@ -91,7 +91,6 @@
         const alertBox = document.getElementById('alert-box');
         const btnSubmit = document.getElementById('btn-submit');
 
-        // Kata sandi generik rahasia di balik layar
         const GENERIC_PASSWORD = "C@y$*&%"; 
 
         function showAlert(message, isSuccess = false) {
@@ -109,79 +108,5 @@
             const email = document.getElementById('login-email').value.trim();
 
             try {
-                // 1. Verifikasi apakah email terdaftar di tabel public.members (pembeli Mayar)
-                const { data: isValidMember, error: rpcError } = await supabaseClient.rpc('verify_mayar_customer', { p_email: email });
-
-                if (rpcError || !isValidMember) {
-                    showAlert("Email tidak ditemukan dalam daftar pembeli sah Mayar. Silakan lakukan pembelian terlebih dahulu.");
-                    return;
-                }
-
-                // 2. Coba login otomatis menggunakan kata sandi generik
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-                    email: email, 
-                    password: GENERIC_PASSWORD 
-                });
-
-                if (error) {
-                    // Jika belum pernah punya akun Supabase Auth, buatkan akun baru otomatis
-                    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ 
-                        email: email, 
-                        password: GENERIC_PASSWORD 
-                    });
-                    
-                    if (signUpError) {
-                        showAlert("Akun sudah terdaftar. Silakan hubungi admin jika Anda lupa kata sandi pribadi Anda.");
-                    } else {
-                        showAlert("Aktivasi berhasil! Silakan buat kata sandi pribadi baru Anda.", true);
-                        loginSection.classList.add('hidden');
-                        setupPasswordSection.classList.remove('hidden');
-                    }
-                } else {
-                    // Jika login generik berhasil, langsung minta pengguna buat password pribadi
-                    showAlert("Aktivasi berhasil! Silakan buat kata sandi pribadi baru Anda.", true);
-                    loginSection.classList.add('hidden');
-                    setupPasswordSection.classList.remove('hidden');
-                }
-            } catch (err) {
-                showAlert("Kesalahan sistem: " + err.message);
-            } finally {
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = "Lanjutkan / Aktivasi";
-            }
-        });
-
-        // Simpan password pribadi baru
-        setupPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newPassword = document.getElementById('new-password').value;
-            const btnSave = document.getElementById('btn-save-pass');
-            btnSave.disabled = true;
-            btnSave.textContent = "Menyimpan...";
-
-            try {
-                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-
-                if (error) {
-                    showAlert("Gagal menyimpan kata sandi: " + error.message);
-                } else {
-                    showAlert("Kata sandi berhasil dibuat! Mengalihkan ke portal...", true);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                }
-            } catch (err) {
-                showAlert("Kesalahan: " + err.message);
-            } finally {
-                btnSave.disabled = false;
-                btnSave.textContent = "Simpan & Masuk ke Portal";
-            }
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
-            location.reload();
-        });
-    </script>
-</body>
-</html>
+                // Langsung coba login menggunakan kata sandi generik di balik layar
+                const { data, error } = await supabaseClient.auth.
